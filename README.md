@@ -34,8 +34,8 @@
 
 准备步骤：
 
-  * [环境安装与配置](https://cherry-game.github.io/guides/install-go.html)
-  * 源码位置：[examples/demo_chat](https://github.com/cherry-game/examples/tree/master/demo_chat)
+* [环境安装与配置](https://cherry-game.github.io/guides/install-go.html)
+* 源码位置：[examples/demo_chat](https://github.com/cherry-game/examples/tree/master/demo_chat)
 
 ### 多节点分布式游戏示例
 
@@ -47,8 +47,8 @@
 
 准备步骤：
 
-  * [环境安装与配置](https://cherry-game.github.io/guides/install-go.html)
-  * 源码位置：[examples/demo_cluster](https://github.com/cherry-game/examples/tree/master/demo_cluster)
+* [环境安装与配置](https://cherry-game.github.io/guides/install-go.html)
+* 源码位置：[examples/demo_cluster](https://github.com/cherry-game/examples/tree/master/demo_cluster)
 
 ## 🌟 核心功能
 
@@ -95,12 +95,12 @@
 
 ### 已开放组件
 
-  * **data-config 组件** ：策划配表读取管理，支持多种加载方式及数据查询
-  * **etcd 组件** ：基于 etcd 封装，用于节点集群和注册发现
-  * **gin 组件** ：集成 gin 实现 http server 功能，增加管理周期和中间件组件
-  * **gorm 组件** ：集成 gorm 实现 mysql 数据库访问，支持多数据库配置
-  * **mongo 组件** ：集成 mongo-driver，支持多 mongodb 数据库配置
-  * **cron 组件** ：基于 robfig/cron 封装，性能良好
+* **data-config 组件** ：策划配表读取管理，支持多种加载方式及数据查询
+* **etcd 组件** ：基于 etcd 封装，用于节点集群和注册发现
+* **gin 组件** ：集成 gin 实现 http server 功能，增加管理周期和中间件组件
+* **gorm 组件** ：集成 gorm 实现 mysql 数据库访问，支持多数据库配置
+* **mongo 组件** ：集成 mongo-driver，支持多 mongodb 数据库配置
+* **cron 组件** ：基于 robfig/cron 封装，性能良好
 
 ### 待开放组件
 
@@ -110,18 +110,18 @@
 
 ### 通信协议格式
 
-  * [协议结构图](_docs/pomelo-protocol.jpg)
-  * [pomelo wiki 协议格式](https://github.com/NetEase/pomelo/wiki/%E5%8D%8F%E8%AE%AE%E6%A0%BC%E5%BC%8F)
+* [协议结构图](_docs/pomelo-protocol.jpg)
+* [pomelo wiki 协议格式](https://github.com/NetEase/pomelo/wiki/%E5%8D%8F%E8%AE%AE%E6%A0%BC%E5%BC%8F)
 
 ### 各平台客户端
 
-  * **unity3d** ：[YMoonRiver/Pomelo_UnityWebSocket](https://github.com/YMoonRiver/Pomelo_UnityWebSocket-2.7.0)、[NetEase/pomelo-unityclient](https://github.com/NetEase/pomelo-unityclient) 等
-  * **cocos2dx** ：[NetEase/pomelo-cocos2dchat](https://github.com/NetEase/pomelo-cocos2dchat)
-  * **Javascript** ：[pomelonode/pomelo-jsclient-websocket](https://github.com/pomelonode/pomelo-jsclient-websocket) 等
-  * **C** ：[topfreegames/libpitaya](https://github.com/topfreegames/libpitaya)、[NetEase/libpomelo](https://github.com/NetEase/libpomelo/) 等
-  * **iOS** ：[NetEase/pomelo-iosclient](https://github.com/NetEase/pomelo-iosclient) 等
-  * **Android & Java** ：[NetEase/pomelo-androidclient](https://github.com/NetEase/pomelo-androidclient) 等
-  * **微信** ：[wangsijie/pomelo-weixin-client](https://github.com/wangsijie/pomelo-weixin-client)
+* **unity3d** ：[YMoonRiver/Pomelo_UnityWebSocket](https://github.com/YMoonRiver/Pomelo_UnityWebSocket-2.7.0)、[NetEase/pomelo-unityclient](https://github.com/NetEase/pomelo-unityclient) 等
+* **cocos2dx** ：[NetEase/pomelo-cocos2dchat](https://github.com/NetEase/pomelo-cocos2dchat)
+* **Javascript** ：[pomelonode/pomelo-jsclient-websocket](https://github.com/pomelonode/pomelo-jsclient-websocket) 等
+* **C** ：[topfreegames/libpitaya](https://github.com/topfreegames/libpitaya)、[NetEase/libpomelo](https://github.com/NetEase/libpomelo/) 等
+* **iOS** ：[NetEase/pomelo-iosclient](https://github.com/NetEase/pomelo-iosclient) 等
+* **Android & Java** ：[NetEase/pomelo-androidclient](https://github.com/NetEase/pomelo-androidclient) 等
+* **微信** ：[wangsijie/pomelo-weixin-client](https://github.com/wangsijie/pomelo-weixin-client)
 
 ## 🗺️ 游戏服务端架构示例
 
@@ -131,3 +131,6 @@
 
 - [pomelo](https://github.com/NetEase/pomelo)
 - [pitaya](https://github.com/topfreegames/pitaya)
+
+## Study
+

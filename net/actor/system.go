@@ -151,6 +151,7 @@ func (p *System) Call(source, target, funcName string, arg any) int32 {
 		return ccode.ActorConvertPathError
 	}
 
+	//跨节点
 	if targetPath.NodeID != "" && targetPath.NodeID != p.NodeID() {
 		clusterPacket := cproto.GetClusterPacket()
 		clusterPacket.SourcePath = source
@@ -180,6 +181,7 @@ func (p *System) Call(source, target, funcName string, arg any) int32 {
 			return ccode.ActorPublishRemoteError
 		}
 	} else {
+		//本节点
 		remoteMsg := cfacade.GetMessage()
 		remoteMsg.Source = source
 		remoteMsg.Target = target
@@ -268,7 +270,7 @@ func (p *System) CallWait(source, target, funcName string, arg, reply any) int32
 		message.Target = target
 		message.FuncName = funcName
 		message.Args = arg
-		message.ChanResult = make(chan interface{})
+		message.ChanResult = make(chan interface{}) //这样好吗...
 
 		var result interface{}
 
