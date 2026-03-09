@@ -50,8 +50,9 @@ func (p *Cluster) loadNatsConfig() {
 }
 
 func (p *Cluster) Init() {
+	//加载配置
 	p.loadNatsConfig()
-
+	//注册处理函数
 	p.localProcess()
 	p.remoteProcess()
 	p.remoteTypeProcess()

@@ -43,6 +43,7 @@ func NewActor(agentActorID string) *Actor {
 
 // OnInit Actor初始化前触发该函数
 func (p *Actor) OnInit() {
+	//注册RemoteFunc
 	p.Remote().Register(ResponseFuncName, p.response)
 	p.Remote().Register(PushFuncName, p.push)
 	p.Remote().Register(KickFuncName, p.kick)
@@ -58,20 +59,25 @@ func (p *Actor) SetOnInitFunc(fn func()) {
 }
 
 func (p *Actor) Load(app cfacade.IApplication) {
+
+	//没有设置connector
 	if len(p.connectors) < 1 {
 		panic("connectors is nil. Please call the AddConnector(...) method add IConnector.")
 	}
 
+	//初始化
 	cmd.init(app)
 
-	//  Create agent actor
+	//  创建Actor, 处理消息
 	if _, err := app.ActorSystem().CreateActor(p.agentActorID, p); err != nil {
 		clog.Panicf("Create agent actor fail. err = %+v", err)
 	}
 
 	for _, connector := range p.connectors {
+		//OnConnectFunc
 		connector.OnConnect(p.defaultOnConnectFunc)
-		go connector.Start() // start connector!
+		//启动!
+		go connector.Start()
 	}
 }
 
@@ -83,21 +89,26 @@ func (p *Actor) Connectors() []cfacade.IConnector {
 	return p.connectors
 }
 
-// defaultOnConnectFunc 创建新连接时，通过当前agentActor创建child agent actor
+// defaultOnConnectFunc 创建新连接时, 默认Func
 func (p *Actor) defaultOnConnectFunc(conn net.Conn) {
+
+	//新建会话
 	session := &cproto.Session{
 		Sid:       nuid.Next(),
 		AgentPath: p.Path().String(),
 		Data:      map[string]string{},
 	}
 
+	//新建一个Agent
 	agent := NewAgent(p.App(), conn, session)
 
 	if p.onNewAgentFunc != nil {
 		p.onNewAgentFunc(&agent)
 	}
 
+	//绑定SessionId与Agent
 	BindSID(&agent)
+	//启动, 开始进行读写消息
 	agent.Run()
 }
 

@@ -12,6 +12,7 @@ type (
 		chanSize int
 	}
 
+	//Option 定义Option类型, 入参为*Options的func
 	Option func(*Options)
 )
 

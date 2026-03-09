@@ -40,6 +40,7 @@ func (p *Connector) Start() {
 		panic("onConnectFunc is nil.")
 	}
 
+	//起一个协程专门执行onConnectFunc
 	go func() {
 		for conn := range p.connChan {
 			p.onConnectFunc(conn)
