@@ -66,7 +66,7 @@ func (p *Connect) Connect() {
 		}
 		p.Conn = conn
 		p.initReplySubscribe()
-
+		//统计
 		if p.isStats {
 			go p.statistics()
 		}
@@ -119,6 +119,7 @@ func (p *Connect) GetID() int {
 	return p.id
 }
 
+// 初始化响应回调
 func (p *Connect) initReplySubscribe() {
 	err := p.Subscribe(p.reply, func(msg *nats.Msg) {
 		reqID := msg.Header.Get(REQ_ID)
@@ -143,6 +144,7 @@ func (p *Connect) initReplySubscribe() {
 	}
 }
 
+// Request 请求消息(内置rpc)
 func (p *Connect) Request(subject string, data []byte, tod ...time.Duration) ([]byte, error) {
 	timeout := GetTimeout(tod...)
 	natsMsg, err := p.Conn.Request(subject, data, timeout)
@@ -153,6 +155,7 @@ func (p *Connect) Request(subject string, data []byte, tod ...time.Duration) ([]
 	return natsMsg.Data, nil
 }
 
+// RequestSync 请求消息(自己分发)
 func (p *Connect) RequestSync(subject string, data []byte, tod ...time.Duration) ([]byte, error) {
 	timeout := GetTimeout(tod...)
 
@@ -192,6 +195,7 @@ func (p *Connect) RequestSync(subject string, data []byte, tod ...time.Duration)
 	}
 }
 
+// Subscribe 订阅
 func (p *Connect) Subscribe(subject string, cb nats.MsgHandler) error {
 	sub, err := p.Conn.Subscribe(subject, cb)
 	if err != nil {
@@ -205,6 +209,7 @@ func (p *Connect) Subscribe(subject string, cb nats.MsgHandler) error {
 	return nil
 }
 
+// QueueSubscribe 使用队列订阅(负载均衡)
 func (p *Connect) QueueSubscribe(subject, queue string, cb nats.MsgHandler) error {
 	sub, err := p.Conn.QueueSubscribe(subject, queue, cb)
 	if err != nil {
