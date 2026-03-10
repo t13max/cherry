@@ -1,3 +1,5 @@
+//一些Func
+
 package cherryActor
 
 import (

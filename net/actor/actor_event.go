@@ -1,3 +1,5 @@
+//事件
+
 package cherryActor
 
 import (
@@ -7,18 +9,19 @@ import (
 
 type (
 	actorEvent struct {
-		thisActor *Actor                    //
+		thisActor *Actor                    //Actor
 		queue                               // queue
-		funcMap   map[string]*eventFuncList // register event func list
+		funcMap   map[string]*eventFuncList // func集合 name->funcList
 	}
 
 	eventFuncList struct {
-		list     []IEventFunc
-		isUnique bool
-		uniqueID int64
+		list     []IEventFunc //func列表
+		isUnique bool         //是否唯一
+		uniqueID int64        //唯一id
 	}
 )
 
+// 新建ActorEvent
 func newEvent(thisActor *Actor) actorEvent {
 	return actorEvent{
 		thisActor: thisActor,

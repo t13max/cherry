@@ -1,3 +1,5 @@
+//ActorTimer Actor的时间持有
+
 package cherryActor
 
 import (
@@ -15,13 +17,13 @@ const (
 type (
 	actorTimer struct {
 		thisActor    *Actor
-		timerInfoMap map[uint64]*timerInfo //key:timerID,value:*timerInfo
+		timerInfoMap map[uint64]*timerInfo //timerID->*timerInfo
 	}
 
 	timerInfo struct {
-		timer *cherryTimeWheel.Timer
-		fn    func()
-		once  bool
+		timer *cherryTimeWheel.Timer //
+		fn    func()                 //执行函数
+		once  bool                   //是否为一次
 	}
 )
 
@@ -37,6 +39,7 @@ func (p *actorTimer) onStop() {
 	p.thisActor = nil
 }
 
+// Add 添加一个周期任务
 func (p *actorTimer) Add(delay time.Duration, fn func(), async ...bool) uint64 {
 	if delay.Milliseconds() < 1 || fn == nil {
 		clog.Warnf("[ActorTimer] Add parameter error. delay = %+v", delay)
@@ -44,18 +47,20 @@ func (p *actorTimer) Add(delay time.Duration, fn func(), async ...bool) uint64 {
 	}
 
 	newID := globalTimer.NextID()
+	//定时执行回调
 	timer := globalTimer.AddEveryFunc(newID, delay, p.callUpdateTimer(newID), async...)
 
 	if timer == nil {
 		clog.Warnf("[ActorTimer] Add error. delay = %+v", delay)
 		return 0
 	}
-
+	//添加TimerInfo
 	p.addTimerInfo(timer, fn, false)
 
 	return newID
 }
 
+// AddOnce 添加一个执行一次的任务
 func (p *actorTimer) AddOnce(delay time.Duration, fn func(), async ...bool) uint64 {
 	if delay.Milliseconds() < 1 || fn == nil {
 		clog.Warnf("[ActorTimer] AddOnce parameter error. delay = %+v", delay)
@@ -63,13 +68,14 @@ func (p *actorTimer) AddOnce(delay time.Duration, fn func(), async ...bool) uint
 	}
 
 	newID := globalTimer.NextID()
+	//稍后执行
 	timer := globalTimer.AfterFunc(newID, delay, p.callUpdateTimer(newID), async...)
 
 	if timer == nil {
 		clog.Warnf("[ActorTimer] AddOnce error. d = %+v", delay)
 		return 0
 	}
-
+	//添加TimerInfo
 	p.addTimerInfo(timer, fn, true)
 
 	return newID

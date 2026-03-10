@@ -169,7 +169,7 @@ func (p *System) Call(source, target, funcName string, arg any) int32 {
 			}
 			clusterPacket.ArgBytes = argsBytes
 		}
-
+		//发布集群消息
 		err = p.app.Cluster().PublishRemote(targetPath.NodeID, clusterPacket)
 		if err != nil {
 			clog.Warnf("[Call] Publish remote fail. [source = %s, target = %s, funcName = %s, err = %v]",
@@ -188,6 +188,7 @@ func (p *System) Call(source, target, funcName string, arg any) int32 {
 		remoteMsg.FuncName = funcName
 		remoteMsg.Args = arg
 
+		//提交消息到本地节点
 		if !p.PostRemote(&remoteMsg) {
 			clog.Warnf("[Call] Post remote fail. [source = %s, target = %s, funcName = %s]", source, target, funcName)
 			return ccode.ActorCallFail
@@ -421,14 +422,14 @@ func (p *System) PostEvent(data cfacade.IEventData) {
 		return
 	}
 
-	// range root actor
+	// 遍历Actor提交事件
 	p.actorMap.Range(func(key, value any) bool {
 		if thisActor, found := value.(*Actor); found {
 			if thisActor.state == WorkerState {
 				thisActor.event.Push(data)
 			}
 
-			// range child actor
+			// 遍历子Actor
 			thisActor.Child().Each(func(iActor cfacade.IActor) {
 				if childActor, ok := iActor.(*Actor); ok {
 					childActor.event.Push(data)

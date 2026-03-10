@@ -53,11 +53,13 @@ type (
 	}
 )
 
+// run 启动一个Actor 理论上需要在一个go里执行
 func (p *Actor) run() {
 	p.onInit()
 	defer p.onStop()
 
 	for {
+		//循环执行
 		if p.loop() {
 			break
 		}
@@ -95,12 +97,14 @@ func (p *Actor) loop() bool {
 	return false
 }
 
+// 处理本地消息
 func (p *Actor) processLocal() {
+	//从本地邮箱取出一个Message
 	m := p.localMail.Pop()
 	if m == nil {
 		return
 	}
-
+	//更新上次执行时间
 	p.lastAt = ctime.Now().ToSecond()
 
 	next, invoke := p.handler.OnLocalReceived(m)
@@ -111,22 +115,28 @@ func (p *Actor) processLocal() {
 	if !next {
 		return
 	}
-
+	//如果目标路径是子Actor
 	if m.TargetPath().IsChild() {
+		//当前已经是子Actor
 		if p.path.IsChild() {
+			//直接执行
 			p.invokeFunc(p.localMail, p.App(), p.system.localInvokeFunc, m)
 		} else {
+			//找到子Actor
 			if childActor, foundChild := p.findChildActor(m); foundChild {
+				//子Actor提交本地消息
 				childActor.PostLocal(m)
 			} else {
 				clog.Warnf("Child actor not found. path = %s", m.Target)
 			}
 		}
 	} else {
+		//直接执行
 		p.invokeFunc(p.localMail, p.App(), p.system.localInvokeFunc, m)
 	}
 }
 
+// 处理远程消息
 func (p *Actor) processRemote() {
 	m := p.remoteMail.Pop()
 	if m == nil {
@@ -162,6 +172,7 @@ func (p *Actor) processRemote() {
 	}
 }
 
+// 处理事件
 func (p *Actor) processEvent() {
 	eventData := p.event.Pop()
 	if eventData == nil {
@@ -267,7 +278,7 @@ func (p *Actor) onStop() {
 				parent.child.Remove(p.path.ChildID)
 			}
 		}
-
+		//各组件的stop
 		p.handler.OnStop()
 		p.timer.onStop()
 		p.event.onStop()
@@ -353,18 +364,22 @@ func (p *Actor) Timer() ITimer {
 	return p.timer
 }
 
+// PostRemote 投递远程消息
 func (p *Actor) PostRemote(m *cfacade.Message) {
 	p.remoteMail.Push(m)
 }
 
+// PostLocal 投递本地消息
 func (p *Actor) PostLocal(m *cfacade.Message) {
 	p.localMail.Push(m)
 }
 
+// PostEvent 投递事件
 func (p *Actor) PostEvent(data cfacade.IEventData) {
 	p.system.PostEvent(data)
 }
 
+// 新建一个Actor
 func newActor(actorID, childID string, handler cfacade.IActorHandler, c *System) (*Actor, error) {
 	if strings.TrimSpace(actorID) == "" {
 		clog.Error("[newActor] actor id is nil.")
@@ -399,7 +414,7 @@ func newActor(actorID, childID string, handler cfacade.IActorHandler, c *System)
 	timer := newTimer(&thisActor)
 	thisActor.timer = &timer
 
-	// register update timer func
+	// 注册更新timer的func
 	thisActor.remoteMail.Register(updateTimerFuncName, thisActor.timer._updateTimer_)
 
 	// spawn load!

@@ -295,7 +295,7 @@ func (tw *TimeWheel) ScheduleFunc(id uint64, s Scheduler, f func(), async ...boo
 	return t
 }
 
-// 获取下一个任务ID
+// NextID 获取下一个任务ID
 func (tw *TimeWheel) NextID() uint64 {
 	return NextID()
 }

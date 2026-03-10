@@ -1,3 +1,5 @@
+//邮箱
+
 package cherryActor
 
 import (
@@ -21,6 +23,7 @@ func newMailbox(name string) mailbox {
 	}
 }
 
+// Register 注册函数
 func (p *mailbox) Register(funcName string, fn interface{}) {
 	if funcName == "" || len(funcName) < 1 {
 		clog.Errorf("[%s] Func name is empty.", fn)
@@ -32,20 +35,22 @@ func (p *mailbox) Register(funcName string, fn interface{}) {
 		clog.Errorf("funcName = %s, err = %v", funcName, err)
 		return
 	}
-
+	//判重
 	if _, found := p.funcMap[funcName]; found {
 		clog.Errorf("funcName = %s, already exists.", funcName)
 		return
 	}
-
+	//添加
 	p.funcMap[funcName] = &funcInfo
 }
 
+// GetFuncInfo 根据函数名获取函数信息
 func (p *mailbox) GetFuncInfo(funcName string) (*creflect.FuncInfo, bool) {
 	funcInfo, found := p.funcMap[funcName]
 	return funcInfo, found
 }
 
+// Pop 出队一个Message
 func (p *mailbox) Pop() *cfacade.Message {
 	v := p.queue.Pop()
 	if v == nil {
@@ -61,6 +66,7 @@ func (p *mailbox) Pop() *cfacade.Message {
 	return msg
 }
 
+// Push 入队一个Message
 func (p *mailbox) Push(m *cfacade.Message) {
 	if m != nil {
 		m.PostTime = ctime.Now().ToMillisecond()
@@ -68,6 +74,7 @@ func (p *mailbox) Push(m *cfacade.Message) {
 	}
 }
 
+// stop 被Actor调用
 func (p *mailbox) onStop() {
 	for key := range p.funcMap {
 		delete(p.funcMap, key)

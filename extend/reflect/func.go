@@ -1,3 +1,5 @@
+// 反射 函数
+
 package cherryReflect
 
 import (
@@ -10,6 +12,7 @@ var (
 	nilFuncInfo = FuncInfo{}
 )
 
+// FuncInfo 函数信息结构体
 type FuncInfo struct {
 	Type       reflect.Type
 	Value      reflect.Value

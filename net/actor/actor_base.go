@@ -1,3 +1,5 @@
+// 作为一个Base给其他Actor实现
+
 package cherryActor
 
 import (

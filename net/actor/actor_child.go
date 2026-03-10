@@ -9,8 +9,8 @@ import (
 )
 
 type actorChild struct {
-	thisActor   *Actor
-	childActors *sync.Map // key:childActorID, value:*actor
+	thisActor   *Actor    //父Actor
+	childActors *sync.Map // 子Actor集合childActorID->*actor
 }
 
 func newChild(thisActor *Actor) actorChild {
@@ -32,6 +32,7 @@ func (p *actorChild) onStop() {
 	p.thisActor = nil
 }
 
+// Create 创建ChildActor
 func (p *actorChild) Create(childID string, handler cfacade.IActorHandler) (cfacade.IActor, error) {
 	if p.thisActor.path.IsChild() {
 		return nil, ErrForbiddenCreateChildActor
@@ -44,13 +45,14 @@ func (p *actorChild) Create(childID string, handler cfacade.IActorHandler) (cfac
 	if thisActor, ok := p.Get(childID); ok {
 		return thisActor, nil
 	}
-
+	//新建一个Actor
 	childActor, err := newActor(p.thisActor.ActorID(), childID, handler, p.thisActor.system)
 	if err != nil {
 		return nil, err
 	}
-
+	//存起来
 	p.childActors.Store(childID, childActor)
+	//run!
 	go childActor.run()
 
 	return childActor, nil

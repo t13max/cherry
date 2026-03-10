@@ -8,9 +8,9 @@ var (
 
 // Component 组件结构体
 type Component struct {
-	cfacade.Component //底层组件
-	*System           //ActorSystem
-	actorHandlers     []cfacade.IActorHandler
+	cfacade.Component                         //底层组件
+	*System                                   //Actor系统
+	actorHandlers     []cfacade.IActorHandler //Actor集合
 }
 
 func New() *Component {
