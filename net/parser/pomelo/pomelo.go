@@ -14,6 +14,7 @@ func DefaultDataRoute(agent *Agent, route *pmessage.Route, msg *pmessage.Message
 	// current node
 	if agent.NodeType() == route.NodeType() {
 		targetPath := cfacade.NewChildPath(agent.NodeID(), route.HandleName(), session.Sid)
+		//本节点直接执行
 		LocalDataRoute(agent, session, route, msg, targetPath)
 		return
 	}
@@ -33,6 +34,7 @@ func DefaultDataRoute(agent *Agent, route *pmessage.Route, msg *pmessage.Message
 	}
 
 	targetPath := cfacade.NewPath(member.GetNodeID(), route.HandleName())
+	//路由到其他节点
 	err := ClusterLocalDataRoute(agent, session, route, msg, member.GetNodeID(), targetPath)
 	if err != nil {
 		clog.Warnf("[sid = %s,uid = %d,route = %s] cluster local data error. err = %v",

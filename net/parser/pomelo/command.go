@@ -16,14 +16,14 @@ type (
 		writeBacklog    int
 		sysData         map[string]interface{}
 		heartbeatTime   time.Duration
-		handshakeBytes  []byte
-		heartbeatBytes  []byte
-		onPacketFuncMap map[ppacket.Type]PacketFunc
-		onDataRouteFunc DataRouteFunc
+		handshakeBytes  []byte                      //握手二进制数据
+		heartbeatBytes  []byte                      //心跳二进制数据
+		onPacketFuncMap map[ppacket.Type]PacketFunc //数据包处理函数集合
+		onDataRouteFunc DataRouteFunc               //路由函数
 	}
 
-	PacketFunc    func(agent *Agent, packet *ppacket.Packet)
-	DataRouteFunc func(agent *Agent, route *pmessage.Route, msg *pmessage.Message)
+	PacketFunc    func(agent *Agent, packet *ppacket.Packet)                       //打包函数
+	DataRouteFunc func(agent *Agent, route *pmessage.Route, msg *pmessage.Message) //路由函数
 )
 
 const (
@@ -49,6 +49,7 @@ func (p *Command) init(app cfacade.IApplication) {
 	p.setData(DataDict, pmessage.GetDictionary())
 	p.setData(DataSerializer, app.Serializer().Name())
 
+	//构建握手和心跳包的二进制,缓存起来复用
 	p.setHandshakeBytes()
 	p.setHeartbeatBytes()
 

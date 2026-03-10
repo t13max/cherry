@@ -146,8 +146,10 @@ func (p *Actor) processRemote() {
 
 	if m.TargetPath().IsChild() {
 		if p.path.IsChild() {
+			//当前已经是子Actor,可以执行了
 			p.invokeFunc(p.remoteMail, p.App(), p.system.remoteInvokeFunc, m)
 		} else {
+			//找到子Actor,路由给子Actor
 			if childActor, foundChild := p.findChildActor(m); foundChild {
 				childActor.PostRemote(m)
 			} else {
@@ -155,6 +157,7 @@ func (p *Actor) processRemote() {
 			}
 		}
 	} else {
+		//直接执行
 		p.invokeFunc(p.remoteMail, p.App(), p.system.remoteInvokeFunc, m)
 	}
 }
