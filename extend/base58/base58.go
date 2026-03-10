@@ -1,4 +1,6 @@
 // Package cherryBase58 file from https://github.com/akamensky/base58/blob/master/base58.go
+// 与Base64相似
+// 编码成 可读、可显示、可传输的字符串
 package cherryBase58
 
 import (

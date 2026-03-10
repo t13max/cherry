@@ -1,3 +1,5 @@
+//gob标准库的增强与封装
+
 package cherryGOB
 
 import (

@@ -1,3 +1,5 @@
+//文件处理工具库
+
 package cherryFile
 
 import (

@@ -1,3 +1,6 @@
+//加密
+//理论上他是加密包, 但是他还有base64...
+
 package cherryCrypto
 
 import (

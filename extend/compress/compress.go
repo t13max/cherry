@@ -1,3 +1,5 @@
+//zlib压缩
+
 package cherryCompress
 
 import (
