@@ -15,6 +15,7 @@ import (
 	cproto "github.com/cherry-game/cherry/net/proto"
 )
 
+// InvokeLocalFunc 调用本地函数
 func InvokeLocalFunc(app cfacade.IApplication, fi *creflect.FuncInfo, m *cfacade.Message) {
 	if app == nil {
 		clog.Errorf("[InvokeLocalFunc] app is nil. [message = %+v]", m)
@@ -29,6 +30,7 @@ func InvokeLocalFunc(app cfacade.IApplication, fi *creflect.FuncInfo, m *cfacade
 	fi.Value.Call(values)
 }
 
+// InvokeRemoteFunc 调用远程函数
 func InvokeRemoteFunc(app cfacade.IApplication, fi *creflect.FuncInfo, m *cfacade.Message) {
 	if app == nil {
 		clog.Errorf("[InvokeRemoteFunc] app is nil. [message = %+v]", m)
@@ -42,6 +44,7 @@ func InvokeRemoteFunc(app cfacade.IApplication, fi *creflect.FuncInfo, m *cfacad
 		values[0] = reflect.ValueOf(m.Args) // args
 	}
 
+	//集群消息
 	if m.IsCluster {
 		rets := fi.Value.Call(values)
 
@@ -160,6 +163,7 @@ func retValue(serializer cfacade.ISerializer, rets []reflect.Value) *cproto.Resp
 	return rsp
 }
 
+// 回消息
 func retResponse(m *cfacade.Message, rsp *cproto.Response) {
 	rspData, _ := proto.Marshal(rsp)
 

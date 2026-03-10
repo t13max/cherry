@@ -56,6 +56,7 @@ func SetFileNameVar(key, value string) {
 	fileNameVarMap[key] = value
 }
 
+// Flush 刷新日志缓冲,确保日志都写入底层存储
 func Flush() {
 	_ = DefaultLogger.Sync()
 

@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	connectPool    []*Connect                      // connect pool
-	connectSize    uint64                          // connect size
-	roundIndex     *uint64       = new(uint64)     // round-robin index
-	reconnectDelay time.Duration = 1 * time.Second // reconnect delay
-	requestTimeout time.Duration = 2 * time.Second // request timeout
+	connectPool    []*Connect                      // 连接池
+	connectSize    uint64                          // 连接池大小
+	roundIndex     *uint64       = new(uint64)     // 轮询索引
+	reconnectDelay time.Duration = 1 * time.Second // 重连延迟时间
+	requestTimeout time.Duration = 2 * time.Second // 请求超时时间
 )
 
 func NewPool(replySubject string, config cfacade.ProfileJSON, isConnect bool) {
@@ -55,6 +55,7 @@ func GetPool() []*Connect {
 	return connectPool
 }
 
+// GetConnect 轮询获取连接
 func GetConnect() *Connect {
 	index := atomic.AddUint64(roundIndex, 1)
 	return connectPool[index%connectSize]

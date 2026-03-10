@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	//对象池
 	_msgPool = &sync.Pool{
 		New: func() interface{} {
 			return &nats.Msg{}

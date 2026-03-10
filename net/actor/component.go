@@ -6,10 +6,11 @@ var (
 	Name = "actor_component"
 )
 
+// Component 组件结构体
 type Component struct {
-	cfacade.Component
-	*System
-	actorHandlers []cfacade.IActorHandler
+	cfacade.Component //底层组件
+	*System           //ActorSystem
+	actorHandlers     []cfacade.IActorHandler
 }
 
 func New() *Component {

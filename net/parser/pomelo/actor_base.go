@@ -38,7 +38,7 @@ func (p *ActorBase) Kick(session *cproto.Session, reason any, closed bool) {
 	Kick(p, session.AgentPath, session.Sid, reason, closed)
 }
 
-// 根据request的mid找到agent，返回消息给客户端
+// Response 根据request的mid找到agent，返回消息给客户端
 func Response(iActor cfacade.IActor, agentPath, sid string, mid uint32, v any) {
 	data, err := iActor.App().Serializer().Marshal(v)
 	if err != nil {
@@ -55,7 +55,7 @@ func Response(iActor cfacade.IActor, agentPath, sid string, mid uint32, v any) {
 	iActor.Call(agentPath, ResponseFuncName, rsp)
 }
 
-// 根据request的mid找到agent，返回消息给客户端
+// ResponseCode 根据request的mid找到agent，返回消息给客户端
 func ResponseCode(iActor cfacade.IActor, agentPath, sid string, mid uint32, statusCode int32) {
 	rsp := &cproto.PomeloResponse{
 		Sid:  sid,
@@ -66,7 +66,7 @@ func ResponseCode(iActor cfacade.IActor, agentPath, sid string, mid uint32, stat
 	iActor.Call(agentPath, ResponseFuncName, rsp)
 }
 
-// 根据sid或uid找到agent，推送消息给客户端
+// Push 根据sid或uid找到agent，推送消息给客户端
 func Push(iActor cfacade.IActor, agentPath, sid string, uid cfacade.UID, route string, v any) {
 	if sid == "" && uid < 1 {
 		clog.Warn("[Push] sid or uid value error.")
@@ -94,17 +94,17 @@ func Push(iActor cfacade.IActor, agentPath, sid string, uid cfacade.UID, route s
 	iActor.Call(agentPath, PushFuncName, rsp)
 }
 
-// 根据sid找到agent，推送消息给客户端
+// PushWithSID 根据sid找到agent，推送消息给客户端
 func PushWithSID(iActor cfacade.IActor, agentPath, sid, route string, v any) {
 	Push(iActor, agentPath, sid, 0, route, v)
 }
 
-// 根据uid找到agent，推送消息给客户端
+// PushWithUID 根据uid找到agent，推送消息给客户端
 func PushWithUID(iActor cfacade.IActor, agentPath string, uid cfacade.UID, route string, v any) {
 	Push(iActor, agentPath, "", uid, route, v)
 }
 
-// 根据uidList或allUID匹配找到Agent，下发数据给客户端
+// PushWithUIDS 根据uidList或allUID匹配找到Agent，下发数据给客户端
 func PushWithUIDS(iActor cfacade.IActor, agentPath string, uidList []int64, allUID bool, route string, v any) {
 	if !allUID && len(uidList) < 1 {
 		clog.Warn("[Broadcast] uidList value error.")
@@ -137,7 +137,7 @@ func PushWithUIDS(iActor cfacade.IActor, agentPath string, uidList []int64, allU
 	iActor.Call(agentPath, BroadcastName, rsp)
 }
 
-// 根据sid找到agent，下发踢除消息给客户端
+// Kick 根据sid找到agent，下发踢除消息给客户端
 func Kick(iActor cfacade.IActor, agentPath, sid string, reason any, closed bool) {
 	data, err := iActor.App().Serializer().Marshal(reason)
 	if err != nil {

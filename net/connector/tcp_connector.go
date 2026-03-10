@@ -61,6 +61,7 @@ func (t *TCPConnector) Start() {
 
 	t.Connector.Start()
 
+	//TCP监听循环, 等待建立连接
 	for t.Running() {
 		conn, err := listener.Accept()
 		if err != nil {

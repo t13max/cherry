@@ -50,8 +50,9 @@ func (p *Cluster) loadNatsConfig() {
 }
 
 func (p *Cluster) Init() {
+	//加载配置
 	p.loadNatsConfig()
-
+	//订阅主题,注册处理函数
 	p.localProcess()
 	p.remoteProcess()
 	p.remoteTypeProcess()
@@ -84,6 +85,7 @@ func (p *Cluster) localProcess() {
 	}
 
 	conn := cnats.GetConnect()
+	//订阅主题
 	err := conn.Subscribe(p.localSubject, process)
 	if err != nil {
 		clog.Errorf("[localProcess] Create subscribe fail. [subject = %s, err = %v]",
@@ -156,6 +158,7 @@ func (p *Cluster) remoteTypeProcess() {
 	}
 }
 
+// PublishLocal 发布本地消息
 func (p *Cluster) PublishLocal(nodeID string, cpacket *cproto.ClusterPacket) error {
 	defer cpacket.Recycle()
 
@@ -180,6 +183,7 @@ func (p *Cluster) PublishLocal(nodeID string, cpacket *cproto.ClusterPacket) err
 	}
 
 	subject := GetLocalSubject(p.prefix, nodeType, nodeID)
+	//发布消息
 	err = cnats.GetConnect().Publish(subject, bytes)
 	if err != nil {
 		clog.Warnf("[PublishLocal] Nats publish fail. [nodeID = %s, %s, err = %v]",
@@ -194,6 +198,7 @@ func (p *Cluster) PublishLocal(nodeID string, cpacket *cproto.ClusterPacket) err
 	return nil
 }
 
+// PublishRemote 发布远程消息
 func (p *Cluster) PublishRemote(nodeID string, cpacket *cproto.ClusterPacket) error {
 	defer cpacket.Recycle()
 
@@ -232,6 +237,7 @@ func (p *Cluster) PublishRemote(nodeID string, cpacket *cproto.ClusterPacket) er
 	return nil
 }
 
+// PublishRemoteType 根据类型发布远程消息
 func (p *Cluster) PublishRemoteType(nodeType string, cpacket *cproto.ClusterPacket) error {
 	defer cpacket.Recycle()
 
@@ -268,6 +274,7 @@ func (p *Cluster) PublishRemoteType(nodeType string, cpacket *cproto.ClusterPack
 	return nil
 }
 
+// RequestRemote 请求远程消息(带返回值)
 func (p *Cluster) RequestRemote(nodeID string, cpacket *cproto.ClusterPacket, timeout ...time.Duration) ([]byte, int32) {
 	defer cpacket.Recycle()
 
@@ -294,6 +301,7 @@ func (p *Cluster) RequestRemote(nodeID string, cpacket *cproto.ClusterPacket, ti
 	}
 
 	subject := GetRemoteSubject(p.prefix, nodeType, nodeID)
+	//这里是同步请求 有返回值
 	natsData, err := cnats.GetConnect().RequestSync(subject, msg, timeout...)
 	if err != nil {
 		clog.Warnf("[RequestRemote] Nats request fail. [nodeID = %s, %s, err = %v]",

@@ -25,23 +25,23 @@ type (
 	NodeMode byte
 
 	Application struct {
-		cfacade.INode
-		isFrontend   bool
-		nodeMode     NodeMode
-		startTime    ctime.CherryTime     // application start time
-		running      int32                // is running
-		dieChan      chan bool            // wait for end application
-		onShutdownFn []func()             // on shutdown execute functions
-		components   []cfacade.IComponent // all components
-		serializer   cfacade.ISerializer  // serializer
-		discovery    cfacade.IDiscovery   // discovery component
-		cluster      cfacade.ICluster     // cluster component
-		actorSystem  *cactor.Component    // actor system
-		netParser    cfacade.INetParser   // net packet parser
+		cfacade.INode                      //节点信息
+		isFrontend    bool                 //是否与前端交互
+		nodeMode      NodeMode             //节点模式
+		startTime     ctime.CherryTime     // application 启动时间
+		running       int32                // 是否为运行状态
+		dieChan       chan bool            // 等待结束chan
+		onShutdownFn  []func()             // shutdown函数
+		components    []cfacade.IComponent // 组件集合
+		serializer    cfacade.ISerializer  // 序列化器
+		discovery     cfacade.IDiscovery   // 服务注册发现组件
+		cluster       cfacade.ICluster     // 集群组件
+		actorSystem   *cactor.Component    // actor系统
+		netParser     cfacade.INetParser   // 网络包解析器
 	}
 )
 
-// NewApp create new application instance
+// NewApp 创建新实例(入参为配置)
 func NewApp(profileFilePath, nodeID string, isFrontend bool, mode NodeMode) *Application {
 	node, err := cprofile.Init(profileFilePath, nodeID)
 	if err != nil {
@@ -51,11 +51,12 @@ func NewApp(profileFilePath, nodeID string, isFrontend bool, mode NodeMode) *App
 	return NewAppNode(node, isFrontend, mode)
 }
 
+// NewAppNode 创建新实例(入参为Node)
 func NewAppNode(node cfacade.INode, isFrontend bool, mode NodeMode) *Application {
-	// set logger
+	// 设置Logger
 	clog.SetNodeLogger(node)
 
-	// print version info
+	// 打印LOGO
 	clog.Info(cconst.GetLOGO())
 
 	app := &Application{
@@ -88,7 +89,10 @@ func (a *Application) DieChan() chan bool {
 	return a.dieChan
 }
 
+// Register 注册组件
 func (a *Application) Register(components ...cfacade.IComponent) {
+
+	//运行状态不允许注册
 	if a.Running() {
 		return
 	}
@@ -98,13 +102,14 @@ func (a *Application) Register(components ...cfacade.IComponent) {
 			clog.Errorf("[component = %T] name is nil", c)
 			return
 		}
-
+		//根据名字查找组件
 		result := a.Find(c.Name())
+		//存在了 不允许重复添加
 		if result != nil {
 			clog.Errorf("[component name = %s] is duplicate.", c.Name())
 			return
 		}
-
+		//添加组件
 		a.components = append(a.components, c)
 	}
 }
@@ -122,7 +127,7 @@ func (a *Application) Find(name string) cfacade.IComponent {
 	return nil
 }
 
-// Remove component by name
+// Remove 根据名字移除组件
 func (a *Application) Remove(name string) cfacade.IComponent {
 	if name == "" {
 		return nil
@@ -155,16 +160,18 @@ func (a *Application) Startup() {
 		}
 	}()
 
+	//已经是running状态
 	if a.Running() {
 		clog.Error("Application has running.")
 		return
 	}
 
 	defer func() {
+		//刷新日志
 		clog.Flush()
 	}()
 
-	// register actor system
+	// 注册actor系统
 	a.Register(a.actorSystem)
 
 	// add connector component
@@ -190,27 +197,27 @@ func (a *Application) Startup() {
 	clog.Infof("[serializer  = %s]", a.serializer.Name())
 	clog.Info("-------------------------------------------------")
 
-	// component list
+	// 所有组件设置App引用
 	for _, c := range a.components {
 		c.Set(a)
 		clog.Infof("[component = %s] is added.", c.Name())
 	}
 	clog.Info("-------------------------------------------------")
 
-	// execute Init()
+	// 执行Init
 	for _, c := range a.components {
 		clog.Infof("[component = %s] -> OnInit().", c.Name())
 		c.Init()
 	}
 	clog.Info("-------------------------------------------------")
 
-	// execute OnAfterInit()
+	// 执行OnAfterInit
 	for _, c := range a.components {
 		clog.Infof("[component = %s] -> OnAfterInit().", c.Name())
 		c.OnAfterInit()
 	}
 
-	// load net packet parser
+	// 网络模块
 	if a.isFrontend {
 		if a.netParser == nil {
 			clog.Panic("net packet parser is nil.")
@@ -222,9 +229,10 @@ func (a *Application) Startup() {
 	clog.Infof("[spend time = %dms] application is running.", a.startTime.NowDiffMillisecond())
 	clog.Info("-------------------------------------------------")
 
-	// set application is running
+	// 标记为running
 	atomic.AddInt32(&a.running, 1)
 
+	//接收系统信号的chan
 	sg := make(chan os.Signal, 1)
 	signal.Notify(sg, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
@@ -235,7 +243,7 @@ func (a *Application) Startup() {
 		clog.Infof("receive shutdown signal = %v.", s)
 	}
 
-	// stop status
+	// stop 状态
 	atomic.StoreInt32(&a.running, 0)
 
 	clog.Info("------- application will shutdown -------")
@@ -250,7 +258,7 @@ func (a *Application) Startup() {
 		}
 	}
 
-	//all components in reverse order
+	//所有组件反序
 	for i := len(a.components) - 1; i >= 0; i-- {
 		cutils.Try(func() {
 			clog.Infof("[component = %s] -> OnBeforeStop().", a.components[i].Name())
