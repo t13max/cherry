@@ -1,5 +1,6 @@
 // Package cherrySnowflake code from: https://github.com/bwmarrin/snowflake
 // snowflake provides a very simple Twitter snowflake generator and parser.
+// 雪花算法 全局唯一id 分布式唯一
 package cherrySnowflake
 
 import (

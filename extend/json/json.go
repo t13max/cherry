@@ -1,3 +1,5 @@
+//高性能json库
+
 package cherryJson
 
 import (

@@ -1,4 +1,5 @@
 // Package cherryRegex file from https://github.com/gogf/gf
+// 正则工具库 封装了go正则标准库
 package cherryRegex
 
 import "regexp"

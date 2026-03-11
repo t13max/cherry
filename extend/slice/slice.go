@@ -1,4 +1,5 @@
 // Package cherrySlice code from: https://github.com/beego/beego/blob/develop/core/utils/slice.go
+// 切片 提供常见的切片操作函数
 package cherrySlice
 
 import (

@@ -1,4 +1,5 @@
 // Package cherryUtils file from https://github.com/gogf/gf
+// 字符/字符串判断工具
 package cherryUtils
 
 // IsLetterUpper checks whether the given byte b is in upper case.

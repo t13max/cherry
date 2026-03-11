@@ -1,3 +1,5 @@
+// 优先队列 最小堆实现
+
 package cherryTimeWheel
 
 import (
@@ -7,93 +9,119 @@ import (
 	"time"
 )
 
-// The start of PriorityQueue implementation.
-// Borrowed from https://github.com/nsqio/nsq/blob/master/internal/pqueue/pqueue.go
+// 队列中的元素
 type item struct {
-	Value    interface{}
-	Priority int64
-	Index    int
+	Value    interface{} // 存储的对象
+	Priority int64       // 优先级, 这里表示过期时间（越小越早执行）
+	Index    int         // 在堆中的索引位置
 }
 
-// this is a priority queue as implemented by a min heap
-// ie. the 0th element is the *lowest* value
+// 优先队列, 本质是最小堆
+// 下标 0 永远是 Priority 最小的元素
 type priorityQueue []*item
 
+// 创建优先队列
 func newPriorityQueue(capacity int) priorityQueue {
 	return make(priorityQueue, 0, capacity)
 }
 
+// Len 返回队列长度
 func (pq priorityQueue) Len() int {
 	return len(pq)
 }
 
+// Less 堆排序规则：Priority 小的优先
 func (pq priorityQueue) Less(i, j int) bool {
 	return pq[i].Priority < pq[j].Priority
 }
 
+// Swap 交换两个元素的位置
 func (pq priorityQueue) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 	pq[i].Index = i
 	pq[j].Index = j
 }
 
+// Push 向堆中插入元素
 func (pq *priorityQueue) Push(x interface{}) {
 	n := len(*pq)
 	c := cap(*pq)
+
+	// 如果容量不够则扩容为原来的2倍
 	if n+1 > c {
 		npq := make(priorityQueue, n, c*2)
 		copy(npq, *pq)
 		*pq = npq
 	}
+
+	// 扩展 slice
 	*pq = (*pq)[0 : n+1]
+
 	value := x.(*item)
 	value.Index = n
+
+	// 放到最后一个位置
 	(*pq)[n] = value
 }
 
+// Pop 从堆中弹出元素
 func (pq *priorityQueue) Pop() interface{} {
 	n := len(*pq)
 	c := cap(*pq)
+
+	// 如果使用率太低则缩容
 	if n < (c/2) && c > 25 {
 		npq := make(priorityQueue, n, c/2)
 		copy(npq, *pq)
 		*pq = npq
 	}
+
 	value := (*pq)[n-1]
 	value.Index = -1
+
+	// slice 去掉最后一个元素
 	*pq = (*pq)[0 : n-1]
 
 	return value
 }
 
+// PeekAndShift 查看堆顶元素是否到期
+// maxValue：当前时间
+// 返回：
+// 1. 到期的 item
+// 2. 如果未到期, 返回还需要等待的时间
 func (pq *priorityQueue) PeekAndShift(maxValue int64) (*item, int64) {
+	// 队列为空
 	if pq.Len() == 0 {
 		return nil, 0
 	}
 
+	// 堆顶元素（最早过期）
 	value := (*pq)[0]
+
+	// 如果还没到过期时间
 	if value.Priority > maxValue {
 		return nil, value.Priority - maxValue
 	}
+
+	// 已经到期, 从堆中移除
 	heap.Remove(pq, 0)
 
 	return value, 0
 }
 
-// The end of PriorityQueue implementation.
-
-// DelayQueue is an unbounded blocking queue of *Delayed* elements, in which
-// an element can only be taken when its delay has expired. The head of the
-// queue is the *Delayed* element whose delay expired furthest in the past.
+// DelayQueue 是一个无限容量的延迟队列
+// 只有当元素过期时才能被取出
+// 队头始终是最早过期的元素
 type DelayQueue struct {
-	C        chan interface{}
-	mu       sync.Mutex
-	pq       priorityQueue
-	sleeping int32 // Similar to the sleeping state of runtime.timers.
-	wakeupC  chan struct{}
+	C        chan interface{} // 到期chan
+	mu       sync.Mutex       // 保护优先队列
+	pq       priorityQueue    // 最小堆
+	sleeping int32            // 是否处于休眠状态（类似 runtime.timers）
+	wakeupC  chan struct{}    // 用于唤醒 Poll
 }
 
-// NewDelayQueue creates an instance of delayQueue with the specified size.
+// NewDelayQueue 创建 DelayQueue
 func NewDelayQueue(size int) *DelayQueue {
 	return &DelayQueue{
 		C:       make(chan interface{}),
@@ -102,82 +130,115 @@ func NewDelayQueue(size int) *DelayQueue {
 	}
 }
 
-// Offer inserts the element into the current queue.
+// Offer 向延迟队列中插入元素
+// elem：元素
+// expiration：过期时间（毫秒）
 func (dq *DelayQueue) Offer(elem interface{}, expiration int64) {
-	value := &item{Value: elem, Priority: expiration}
+	value := &item{
+		Value:    elem,
+		Priority: expiration,
+	}
 
 	dq.mu.Lock()
+
+	// 插入最小堆
 	heap.Push(&dq.pq, value)
+
+	// 获取该元素在堆中的位置
 	index := value.Index
+
 	dq.mu.Unlock()
 
+	// 如果是新的最早过期任务
 	if index == 0 {
-		// A new item with the earliest expiration is added.
+
+		// 如果当前 Poll 线程处于休眠状态, 则唤醒
 		if atomic.CompareAndSwapInt32(&dq.sleeping, 1, 0) {
 			dq.wakeupC <- struct{}{}
 		}
 	}
 }
 
-// Poll starts an infinite loop, in which it continually waits for an element
-// to expire and then send the expired element to the channel C.
+// Poll 是延迟队列的核心循环
+// 持续等待任务到期, 然后把任务发送到 C 通道
 func (dq *DelayQueue) Poll(exitC chan struct{}, nowF func() int64) {
+
 	for {
+		// 获取当前时间
 		now := nowF()
 
 		dq.mu.Lock()
-		value, delta := dq.pq.PeekAndShift(now)
-		if value == nil {
-			// No items left or at least one item is pending.
 
-			// We must ensure the atomicity of the whole operation, which is
-			// composed of the above PeekAndShift and the following StoreInt32,
-			// to avoid possible race conditions between Offer and Poll.
+		// 查看最早到期任务
+		value, delta := dq.pq.PeekAndShift(now)
+
+		if value == nil {
+			// 队列为空 或者 任务还没到期
+
+			// 设置为休眠状态
+			// 这里必须和 PeekAndShift 保持原子性
+			// 防止 Offer 与 Poll 之间发生竞态
 			atomic.StoreInt32(&dq.sleeping, 1)
 		}
+
 		dq.mu.Unlock()
 
 		if value == nil {
+
+			// 队列为空
 			if delta == 0 {
-				// No items left.
 				select {
+
+				// 等待新任务加入
 				case <-dq.wakeupC:
-					// Wait until a new item is added.
 					continue
+
+				// 收到退出信号
 				case <-exitC:
 					goto exit
 				}
-			} else if delta > 0 {
-				// At least one item is pending.
-				select {
-				case <-dq.wakeupC:
-					// A new item with an "earlier" expiration than the current "earliest" one is added.
-					continue
-				case <-time.After(time.Duration(delta) * time.Millisecond):
-					// The current "earliest" item expires.
 
-					// Reset the sleeping state since there's no need to receive from wakeupC.
+			} else if delta > 0 {
+
+				// 有任务, 但还没到期
+				select {
+
+				// 有更早任务加入
+				case <-dq.wakeupC:
+					continue
+
+				// 等待当前任务到期
+				case <-time.After(time.Duration(delta) * time.Millisecond):
+
+					// 任务到期, 取消休眠状态
 					if atomic.SwapInt32(&dq.sleeping, 0) == 0 {
-						// A caller of Offer() is being blocked on sending to wakeupC,
-						// drain wakeupC to unblock the caller.
+
+						// 如果 Offer 正阻塞在 wakeupC 发送
+						// 这里读取一次防止阻塞
 						<-dq.wakeupC
 					}
+
 					continue
+
 				case <-exitC:
 					goto exit
 				}
 			}
 		}
 
+		// 任务已经到期
 		select {
+
+		// 发送到输出通道
 		case dq.C <- value.Value:
-			// The expired element has been sent out successfully.
+
 		case <-exitC:
 			goto exit
 		}
 	}
 
 exit:
-	// Reset the states
+
+	// 重置状态
 	atomic.StoreInt32(&dq.sleeping, 0)
 }

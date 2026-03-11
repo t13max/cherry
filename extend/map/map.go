@@ -1,3 +1,5 @@
+//泛型Map 可选是否协程安全
+
 package cherryMap
 
 import (

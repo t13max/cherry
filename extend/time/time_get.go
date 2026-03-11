@@ -1,3 +1,5 @@
+//时间获取
+
 package cherryTime
 
 import "time"

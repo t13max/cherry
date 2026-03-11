@@ -1,3 +1,5 @@
+//时间设置
+
 package cherryTime
 
 import "time"

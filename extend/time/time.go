@@ -1,4 +1,5 @@
 // Package cherryTime code from: https://github.com/golang-module/carbon
+// 时间 对标准库封装 增加工具方法
 package cherryTime
 
 import (

@@ -1,4 +1,5 @@
 // Package cherrySync cherrySync file from https://github.com/beego/beego/blob/develop/core/utils/safemap.go
+// 并发控制工具
 package cherrySync
 
 import cerr "github.com/cherry-game/cherry/error"

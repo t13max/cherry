@@ -1,3 +1,5 @@
+//对标准库WaitGroup的简单封装
+
 package cherrySync
 
 import goSync "sync"

@@ -1,3 +1,5 @@
+//字符串工具库
+
 package cherryString
 
 import (

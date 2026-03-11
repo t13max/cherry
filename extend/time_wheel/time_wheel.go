@@ -25,9 +25,9 @@ type TimeWheel struct {
 	interval      int64            // 整个时间轮一圈代表的时间 = tick * wheelSize
 	currentTime   int64            // 当前时间(毫秒)
 	buckets       []*bucket        // 每个槽对应一个bucket
-	queue         *DelayQueue      // 延迟队列，用于按时间驱动bucket触发
+	queue         *DelayQueue      // 优先队列，用于按时间驱动bucket触发
 	overflowWheel unsafe.Pointer   // 上层时间轮(用于更长时间任务)
-	exitC         chan struct{}    // 停止信号
+	exitC         chan struct{}    // 停止chan
 	waitGroup     waitGroupWrapper // goroutine等待组
 }
 

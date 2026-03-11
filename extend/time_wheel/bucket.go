@@ -1,3 +1,5 @@
+//时间轮里面的桶
+
 package cherryTimeWheel
 
 import (
@@ -13,9 +15,9 @@ type bucket struct {
 	//
 	// For more explanations, see https://golang.org/pkg/sync/atomic/#pkg-note-BUG
 	// and https://go101.org/article/memory-layout.html.
-	expiration int64
-	mu         sync.Mutex
-	timers     *list.List
+	expiration int64      //桶触发时间 放在第一位为了内存对齐 防止atomic在32位崩溃 待印证...
+	mu         sync.Mutex //锁 保护timers
+	timers     *list.List //Timer链表
 }
 
 func newBucket() *bucket {

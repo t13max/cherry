@@ -1,3 +1,5 @@
+//时间轮里面的Timer
+
 package cherryTimeWheel
 
 import (
@@ -16,7 +18,7 @@ type Timer struct {
 	//
 	// NOTE: This field may be updated and read concurrently,
 	// through Timer.Stop() and Bucket.Flush().
-	b       unsafe.Pointer // type: *bucket
+	b       unsafe.Pointer // type: *bucket 桶会被并发读写 atomic只能操作unsafe.Pointer
 	element *list.Element  // The timer's element.
 	isAsync bool           // async execute task
 }

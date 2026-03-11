@@ -2,6 +2,7 @@
 //
 // The Push function is safe to call from multiple goroutines. The pop and Empty APIs must only be
 // called from a single, consumer goroutine.
+// 多生产者单消费者的无锁队列
 package cherryQueue
 
 // This implementation is based on http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue

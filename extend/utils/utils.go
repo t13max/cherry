@@ -1,3 +1,5 @@
+//模拟 try-catch 的工具函数
+
 package cherryUtils
 
 import (

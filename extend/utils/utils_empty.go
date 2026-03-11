@@ -1,4 +1,5 @@
 // Package cherryUtils file from https://github.com/gogf/gf
+// 通用判空工具
 package cherryUtils
 
 import "reflect"

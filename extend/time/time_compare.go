@@ -1,3 +1,5 @@
+//时间判断工具方法集合
+
 package cherryTime
 
 import "time"

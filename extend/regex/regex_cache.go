@@ -1,3 +1,5 @@
+//缓存Pattern
+
 package cherryRegex
 
 import (
